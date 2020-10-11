@@ -6,7 +6,7 @@ Built using PyCharm
 """
 from utils import *
 from time import sleep
-from setup import setup
+from setup import setup, do_battle
 
 
 def main():
@@ -28,6 +28,8 @@ def main():
     # setup players
     player_1 = setup(1, party_size)
     player_2 = setup(2, party_size)
+
+    do_battle(party_size, player_1, player_2)
 
 
 if __name__ == '__main__':

@@ -31,5 +31,9 @@ class Player(object):
         if len(self.party):
             message(f"{self.player_name}'s party:\n", "!")
             for i, p in enumerate(self.party):
-                print(f"    > ({i + 1}/{party_size}) PKMN {p.name}")
+                print(f"    > ({i + 1}/{len(self.party)}) PKMN {p.name}")
 
+    def remove_fainted_pkmn(self):
+        for pkmn in self.party:
+            if pkmn.fainted:
+                self.party.remove(pkmn)

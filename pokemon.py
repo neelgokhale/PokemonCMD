@@ -8,7 +8,9 @@ Built using PyCharm
 import pokebase as pb
 import requests
 import random
-
+from move import Move
+from utils import message, simulate_accuracy
+from time import sleep
 
 class Pokemon(object):
 
@@ -16,19 +18,92 @@ class Pokemon(object):
         self.pkmn = pkmn
         self.name = pkmn.name
         self.health = pkmn.stats[0].base_stat
-        self.moveset = None
+        self.moveset = []
         self.damage_to = None
         self.damage_from = None
+        self.fainted = False
 
     def populate_moveset(self):
         move_list = generate_moveset(self.pkmn)
-        self.moveset = pick_moves(move_list, self.pkmn)
+        picked_move_list = pick_moves(move_list, self.pkmn)
+        for m in picked_move_list:
+            self.moveset.append(Move(m))
 
     def factor_type_advantages(self, pkmn2):
         damage_dict = damage_multiplier(self.pkmn, pkmn2.pkmn)
-        # self
         self.damage_to = damage_dict[self.name]['to']
         self.damage_from = damage_dict[self.name]['from']
+        damage_dict = damage_multiplier(pkmn2.pkmn, self.pkmn)
+        pkmn2.damage_to = damage_dict[pkmn2.name]['to']
+        pkmn2.damage_to = damage_dict[pkmn2.name]['from']
+
+    def has_fainted(self):
+        self.fainted = True
+
+    def fight_pokemon(self, pkmn2):
+        message("Battle Stage!!!\n", "*")
+        message(f"PKMN {self.name} V.S. PKMN {pkmn2.name}\n", "*")
+        print(f"    > {self.name}: {self.health} HP")
+        print(f"    > {pkmn2.name}: {pkmn2.health} HP")
+
+        while (self.health > 0) and (pkmn2.health > 0):
+
+            #PKMN 1 turn
+            self.factor_type_advantages(pkmn2)
+            message(f"PKMN {self.name}, make your move\n", "?")
+            print_moves(self.moveset)
+            pkmn1_choice = -1
+            while pkmn1_choice not in [1, 2, 3, 4]:
+                pkmn1_choice = int(input("    > ENTER MOVE NUMBER: "))
+                if self.moveset[pkmn1_choice - 1].pp > 0:
+                    pkmn1_choice = pkmn1_choice
+                else:
+                    pkmn1_choice = -1
+            message(f"PKMN {self.name} used {self.moveset[pkmn1_choice - 1].name}. " + f"{self.moveset[pkmn1_choice - 1].flv_txt}.\n", "*")
+
+            if simulate_accuracy(self.moveset[pkmn1_choice - 1].acc):
+                pkmn2.health -= self.moveset[pkmn1_choice - 1].pwr * self.damage_to
+            else:
+                message(f"PKMN {self.name} missed!\n", "*")
+            self.moveset[pkmn1_choice - 1].move_made()
+            pkmn1_choice = -1
+            sleep(1)
+
+            print(f"    > {self.name}: {self.health} HP")
+            print(f"    > {pkmn2.name}: {pkmn2.health} HP")
+
+            if pkmn2.health <= 0:
+                pkmn2.has_fainted()
+                message(f"PKMN {pkmn2.name} has fainted...\n", "*")
+                break
+
+            #PKMN 2 turn
+            message(f"PKMN {pkmn2.name}, make your move\n", "?")
+            print_moves(pkmn2.moveset)
+            pkmn2_choice = -1
+            while pkmn2_choice not in [1, 2, 3, 4]:
+                pkmn2_choice = int(input("    > ENTER MOVE NUMBER: "))
+                if pkmn2.moveset[pkmn2_choice - 1].pp > 0:
+                    pkmn2_choice = pkmn2_choice
+                else:
+                    pkmn2_choice = -1
+            message(f"PKMN {pkmn2.name} used {pkmn2.moveset[pkmn2_choice - 1].name}. " + f"{pkmn2.moveset[pkmn2_choice - 1].flv_txt}.\n", "*")
+
+            if simulate_accuracy(pkmn2.moveset[pkmn2_choice - 1].acc):
+                self.health -= pkmn2.moveset[pkmn2_choice - 1].pwr * pkmn2.damage_to
+            else:
+                message(f"PKMN {pkmn2.name} missed!\n", "*")
+            pkmn2.moveset[pkmn2_choice - 1].move_made()
+            pkmn2_choice = -1
+            sleep(1)
+
+            print(f"    > {self.name}: {self.health} HP")
+            print(f"    > {pkmn2.name}: {pkmn2.health} HP")
+
+            if self.health <= 0:
+                self.has_fainted()
+                message(f"PKMN {self.name} has fainted...\n", "*")
+                break
 
 
 def create_pokemon(name_or_id):
@@ -84,8 +159,8 @@ def pick_moves(moveset, party_pkmn):
 
 def print_moves(moveset):
     for i, m in enumerate(moveset):
-        acc = m.accuracy
-        pwr = "--" if m.power is None else m.power
+        acc = m.acc
+        pwr = "--" if m.pwr == 0 else m.pwr
         pp = m.pp
         print(f"    <move {i+1}> {m.name} [ acc: {acc} / pwr: {pwr} / pp: {pp} ]")
 
