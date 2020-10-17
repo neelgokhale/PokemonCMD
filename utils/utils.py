@@ -5,8 +5,9 @@ Built using PyCharm
 
 """
 
-from time import sleep
 from random import shuffle, choice
+from time import sleep
+
 
 def message(msg: str, typ: str):
     print(f"({typ}) > ", end="")

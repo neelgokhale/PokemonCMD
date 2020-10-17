@@ -5,10 +5,6 @@ Built using PyCharm
 
 """
 
-import pokebase as pb
-import requests
-import random
-
 
 class Move(object):
 

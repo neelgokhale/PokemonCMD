@@ -5,8 +5,8 @@ Built using PyCharm
 
 """
 
-from utils import *
-from pokemon import create_pokemon, generate_moveset, pick_moves, print_moves, Pokemon
+from objs.pokemon import create_pokemon, print_moves, Pokemon
+from utils.utils import *
 
 
 class Player(object):

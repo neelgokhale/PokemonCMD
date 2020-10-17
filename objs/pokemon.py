@@ -5,12 +5,15 @@ Built using PyCharm
 
 """
 
+import random
+from time import sleep
+
 import pokebase as pb
 import requests
-import random
-from move import Move
-from utils import message, simulate_accuracy
-from time import sleep
+
+from objs.move import Move
+from utils.utils import message, simulate_accuracy
+
 
 class Pokemon(object):
 
@@ -48,7 +51,7 @@ class Pokemon(object):
 
         while (self.health > 0) and (pkmn2.health > 0):
 
-            #PKMN 1 turn
+            # PKMN 1 turn
             self.factor_type_advantages(pkmn2)
             message(f"PKMN {self.name}, make your move\n", "?")
             print_moves(self.moveset)
@@ -59,10 +62,16 @@ class Pokemon(object):
                     pkmn1_choice = pkmn1_choice
                 else:
                     pkmn1_choice = -1
-            message(f"PKMN {self.name} used {self.moveset[pkmn1_choice - 1].name}. " + f"{self.moveset[pkmn1_choice - 1].flv_txt}.\n", "*")
+            message(
+                f"PKMN {self.name} used {self.moveset[pkmn1_choice - 1].name}. " + f"{self.moveset[pkmn1_choice - 1].flv_txt}.\n",
+                "*")
 
             if simulate_accuracy(self.moveset[pkmn1_choice - 1].acc):
                 pkmn2.health -= self.moveset[pkmn1_choice - 1].pwr * self.damage_to
+                if self.damage_to > 1:
+                    print("    > It's super effective!")
+                elif self.damage_to < 1:
+                    print("    > It's not very effective")
             else:
                 message(f"PKMN {self.name} missed!\n", "*")
             self.moveset[pkmn1_choice - 1].move_made()
@@ -77,7 +86,7 @@ class Pokemon(object):
                 message(f"PKMN {pkmn2.name} has fainted...\n", "*")
                 break
 
-            #PKMN 2 turn
+            # PKMN 2 turn
             message(f"PKMN {pkmn2.name}, make your move\n", "?")
             print_moves(pkmn2.moveset)
             pkmn2_choice = -1
@@ -87,7 +96,9 @@ class Pokemon(object):
                     pkmn2_choice = pkmn2_choice
                 else:
                     pkmn2_choice = -1
-            message(f"PKMN {pkmn2.name} used {pkmn2.moveset[pkmn2_choice - 1].name}. " + f"{pkmn2.moveset[pkmn2_choice - 1].flv_txt}.\n", "*")
+            message(
+                f"PKMN {pkmn2.name} used {pkmn2.moveset[pkmn2_choice - 1].name}. " + f"{pkmn2.moveset[pkmn2_choice - 1].flv_txt}.\n",
+                "*")
 
             if simulate_accuracy(pkmn2.moveset[pkmn2_choice - 1].acc):
                 self.health -= pkmn2.moveset[pkmn2_choice - 1].pwr * pkmn2.damage_to
@@ -162,7 +173,7 @@ def print_moves(moveset):
         acc = m.acc
         pwr = "--" if m.pwr == 0 else m.pwr
         pp = m.pp
-        print(f"    <move {i+1}> {m.name} [ acc: {acc} / pwr: {pwr} / pp: {pp} ]")
+        print(f"    <move {i + 1}> {m.name} [ acc: {acc} / pwr: {pwr} / pp: {pp} ]")
 
 
 def damage_multiplier(pkmn1, pkmn2):
@@ -248,13 +259,3 @@ def damage_multiplier(pkmn1, pkmn2):
     dmg_dict[pkmn2.name] = {"to": pkmn2_dmg_to, "from": pkmn2_dmg_from}
 
     return dmg_dict
-
-
-if __name__ == '__main__':
-    pokemon1 = pb.pokemon("rayquaza")
-    pokemon2 = pb.pokemon("charizard")
-    rayquaza = Pokemon(pokemon1)
-    print(rayquaza.name)
-    print(rayquaza.health)
-    rayquaza.populate_moveset()
-    print_moves(rayquaza.moveset)

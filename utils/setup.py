@@ -5,9 +5,8 @@ Built using PyCharm
 
 """
 
-from utils import *
-from player import Player
-from time import sleep
+from objs.player import Player
+from utils.utils import *
 
 
 def setup(num, party_size):

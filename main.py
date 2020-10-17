@@ -4,9 +4,9 @@ File main.py from project PokemonCMD
 Built using PyCharm
 
 """
-from utils import *
-from time import sleep
-from setup import setup, do_battle
+
+from utils.setup import setup, do_battle
+from utils.utils import *
 
 
 def main():
